@@ -12,7 +12,7 @@ public class GameManager : MonoBehaviour
     public int matches;
     public int Matches { get => matches; private set { matches = value; UIManager.Instance.UpdateMatches(value);}  }
     public int turns;
-    public int Turns { get => turns; private set { matches = value; UIManager.Instance.UpdateTurns(value);}  }
+    public int Turns { get => turns; private set { turns = value; UIManager.Instance.UpdateTurns(value);}  }
     private int matchesFound = 0;
 
     private void Awake()
