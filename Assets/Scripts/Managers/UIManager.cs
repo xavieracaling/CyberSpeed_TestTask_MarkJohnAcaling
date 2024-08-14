@@ -2,11 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 public class UIManager : MonoBehaviour
 {
     public static UIManager Instance { get; private set; }
 
-    public Text ScoreText { get; private set; }
+    public TextMeshProUGUI ScoreText_Matches ;
+    public TextMeshProUGUI ScoreText_Turns ;
 
     private void Awake()
     {
@@ -20,12 +22,15 @@ public class UIManager : MonoBehaviour
             Destroy(gameObject);
         }
 
-        ScoreText = GetComponent<Text>();
+        //ScoreText = GetComponent<Text>();
     }
 
-    public void UpdateScore(int score)
+    public void UpdateTurns(int score)
     {
-        ScoreText.text = "Score: " + score;
+       ScoreText_Turns.text =  score.ToString();
     }
-
+    public void UpdateMatches(int score)
+    {
+       ScoreText_Matches.text =  score.ToString();
+    }
 }

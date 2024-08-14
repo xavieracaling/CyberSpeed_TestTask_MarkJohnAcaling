@@ -7,25 +7,27 @@ public class Card : MonoBehaviour
 {
     public Image CardImage { get; private set; }
     public Button CardButton { get; private set; }
-    public Sprite FrontSprite;
-    public Sprite BackSprite;
-
+    public Sprite FrontSprite { get; private set; }
+    public Sprite BackSprite { get; private set; }
+    public GameObject FrontSpriteGO { get; private set; }
+    
     private bool isFlipped;
     private bool isMatched;
-    private GameManager gameManager;
 
     private void Awake()
     {
         CardImage = GetComponent<Image>();
         CardButton = GetComponent<Button>();
         CardButton.onClick.AddListener(OnCardClicked);
+        Initialize(transform.GetChild(0).GetComponent<Image>().sprite,
+                   GetComponent<Image>().sprite);
     }
 
-    public void Initialize(Sprite frontSprite, Sprite backSprite, GameManager manager)
+    public void Initialize(Sprite frontSprite, Sprite backSprite)
     {
         FrontSprite = frontSprite;
         BackSprite = backSprite;
-        gameManager = manager;
+        FrontSpriteGO = transform.GetChild(0).gameObject;
         ResetCard();
     }
 
@@ -41,7 +43,7 @@ public class Card : MonoBehaviour
     {
         if (isFlipped || isMatched) return;
 
-        gameManager.OnCardSelected(this);
+        GameManager.Instance.OnCardSelected(this);
         FlipCard();
     }
 
@@ -52,7 +54,8 @@ public class Card : MonoBehaviour
 
         CardImage.transform.DOScaleX(0, 0.2f).OnComplete(() =>
         {
-            CardImage.sprite = FrontSprite;
+            FrontSpriteGO.gameObject.SetActive(true);
+            //CardImage.sprite = FrontSprite;
             CardImage.transform.DOScaleX(1, 0.2f);
         });
     }
@@ -64,6 +67,7 @@ public class Card : MonoBehaviour
 
         CardImage.transform.DOScaleX(0, 0.2f).OnComplete(() =>
         {
+            FrontSpriteGO.gameObject.SetActive(false);
             CardImage.sprite = BackSprite;
             CardImage.transform.DOScaleX(1, 0.2f);
         });

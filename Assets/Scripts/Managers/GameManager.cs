@@ -7,10 +7,12 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance { get; private set; }
 
     public CardDeck CardDeck { get; private set; }
-    public UIManager UIManager { get; private set; }
 
     private List<Card> flippedCards = new List<Card>();
-    private int score = 0;
+    public int matches;
+    public int Matches { get => matches; private set { matches = value; UIManager.Instance.UpdateMatches(value);}  }
+    public int turns;
+    public int Turns { get => matches; private set { matches = value; UIManager.Instance.UpdateTurns(value);}  }
     private int matchesFound = 0;
 
     private void Awake()
@@ -33,10 +35,11 @@ public class GameManager : MonoBehaviour
 
     private void InitializeGame()
     {
-        score = 0;
+        Matches = 0;
+        Turns = 0;
         matchesFound = 0;
-        UIManager.Instance.UpdateScore(score);
-        CardDeck.ResetDeck();
+      
+        CardDeck.Instance.ResetDeck();
     }
 
     public void OnCardSelected(Card selectedCard)
@@ -63,14 +66,13 @@ public class GameManager : MonoBehaviour
         {
             card1.SetMatched();
             card2.SetMatched();
-            score++;
+            Matches++;
             matchesFound += 2;
-            UIManager.Instance.UpdateScore(score);
 
-            if (matchesFound >= CardDeck.Cards.Count)
-            {
-                
-            }
+            // if (matchesFound >= CardDeck.Cards.Count)
+            // {
+            
+            // }
         }
         else
         {
