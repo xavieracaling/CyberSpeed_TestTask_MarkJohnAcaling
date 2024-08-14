@@ -7,8 +7,8 @@ public class Card : MonoBehaviour
 {
     public Image CardImage { get; private set; }
     public Button CardButton { get; private set; }
-    public Sprite FrontSprite { get; private set; }
-    public Sprite BackSprite { get; private set; }
+    public Sprite FrontSprite;
+    public Sprite BackSprite;
 
     private bool isFlipped;
     private bool isMatched;
