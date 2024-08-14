@@ -22,7 +22,6 @@ public class UIManager : MonoBehaviour
             Destroy(gameObject);
         }
 
-        //ScoreText = GetComponent<Text>();
     }
 
     public void UpdateTurns(int score)

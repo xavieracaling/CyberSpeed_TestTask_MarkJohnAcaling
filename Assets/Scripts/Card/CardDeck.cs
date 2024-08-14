@@ -7,6 +7,11 @@ public class CardDeck : MonoBehaviour
     public List<Card> Cards = new List<Card>();
 
     private void Start() {
+        Initialize();
+    }
+    public void Initialize()
+    {
+        GameManager.Instance.CurrentCarDeck = this;
         ShuffleDeck();
     }
     public void ShuffleDeck()

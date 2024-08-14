@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
+    public int Level;
+    public const int MaxLevel = 5;
+    public List<GameObject> ListOfLevelCardDecks = new List<GameObject>();
     public static GameManager Instance { get; private set; }
 
     public CardDeck CardDeck { get; private set; }
@@ -13,8 +16,15 @@ public class GameManager : MonoBehaviour
     public int Matches { get => matches; private set { matches = value; UIManager.Instance.UpdateMatches(value);}  }
     public int turns;
     public int Turns { get => turns; private set { turns = value; UIManager.Instance.UpdateTurns(value);}  }
-    private int matchesFound = 0;
+    
 
+    public CardDeck CurrentCarDeck;
+
+    public GameObject ContainerRestartNext;
+    public GameObject NextLevelGO;
+    public GameObject ContainerUI;
+    public GameObject MenuUI;
+    public Transform GameContainer;
     private void Awake()
     {
         if (Instance == null)
@@ -37,7 +47,7 @@ public class GameManager : MonoBehaviour
     {
         Matches = 0;
         Turns = 0;
-        matchesFound = 0;
+        
       
     }
 
@@ -48,11 +58,11 @@ public class GameManager : MonoBehaviour
         // Check if we have a pair to evaluate
         if (flippedCards.Count % 2 == 0)
         {
-            StartCoroutine(CheckMatch());
+            StartCoroutine(checkMatch());
         }
     }
 
-    private IEnumerator CheckMatch()
+    private IEnumerator checkMatch()
     {
         // Get the last two flipped cards
         Turns++;
@@ -67,7 +77,7 @@ public class GameManager : MonoBehaviour
             card1.SetMatched();
             card2.SetMatched();
             Matches++;
-            matchesFound += 2;
+      
 
             // if (matchesFound >= CardDeck.Cards.Count)
             // {
@@ -82,5 +92,36 @@ public class GameManager : MonoBehaviour
 
         flippedCards.Remove(card1);
         flippedCards.Remove(card2);
+
+        CheckLevelComplete();
     }
+    public void CheckLevelComplete()
+    {
+        if(matches + matches == CurrentCarDeck.Cards.Count)
+        {
+            ContainerRestartNext.SetActive(true);
+            NextLevelGO.SetActive(true);
+            if(MaxLevel == Level )
+                NextLevelGO.SetActive(false);
+            Debug.Log("Completed Game!");
+        }
+    }
+    public void GotoMenu()
+    {
+        MenuUI.gameObject.SetActive(true);
+        ContainerUI.SetActive(false);
+        CurrentCarDeck.gameObject.SetActive(false);
+    }
+    public void NextLevel(int level)
+    {
+        MenuUI.gameObject.SetActive(false);
+        Level = level;
+        InitializeGame();
+        GameObject cardLevel = Instantiate(ListOfLevelCardDecks[level], GameContainer);
+        CardDeck cardDeck = cardLevel.GetComponent<CardDeck>();
+        ContainerUI.SetActive(true);
+        cardDeck.ShuffleDeck();
+    }
+    public void Restart() => NextLevel(Level);
+    
 }
