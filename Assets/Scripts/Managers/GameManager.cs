@@ -12,7 +12,7 @@ public class GameManager : MonoBehaviour
     public int matches;
     public int Matches { get => matches; private set { matches = value; UIManager.Instance.UpdateMatches(value);}  }
     public int turns;
-    public int Turns { get => matches; private set { matches = value; UIManager.Instance.UpdateTurns(value);}  }
+    public int Turns { get => turns; private set { matches = value; UIManager.Instance.UpdateTurns(value);}  }
     private int matchesFound = 0;
 
     private void Awake()
@@ -56,11 +56,12 @@ public class GameManager : MonoBehaviour
     private IEnumerator CheckMatch()
     {
         // Get the last two flipped cards
+        Turns++;
         int lastIndex = flippedCards.Count - 1;
         Card card1 = flippedCards[lastIndex];
         Card card2 = flippedCards[lastIndex - 1];
 
-        yield return new WaitForSeconds(0.8f);
+        yield return new WaitForSeconds(0.5f);
 
         if (card1.FrontSprite == card2.FrontSprite)
         {
