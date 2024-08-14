@@ -39,7 +39,6 @@ public class GameManager : MonoBehaviour
         Turns = 0;
         matchesFound = 0;
       
-        CardDeck.Instance.ResetDeck();
     }
 
     public void OnCardSelected(Card selectedCard)
@@ -81,7 +80,7 @@ public class GameManager : MonoBehaviour
             card2.FlipBack();
         }
 
-        flippedCards.RemoveAt(lastIndex);
-        flippedCards.RemoveAt(lastIndex - 1);
+        flippedCards.Remove(card1);
+        flippedCards.Remove(card2);
     }
 }

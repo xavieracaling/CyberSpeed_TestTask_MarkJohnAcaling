@@ -4,26 +4,18 @@ using UnityEngine;
 
 public class CardDeck : MonoBehaviour
 {
-    public static CardDeck Instance;
     public List<Card> Cards = new List<Card>();
 
-    private void Awake() {
-        if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject); 
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
+    private void Start() {
+        ShuffleDeck();
     }
-    public void ResetDeck()
+    public void ShuffleDeck()
     {
-        if(Cards.Count < 1) return;
-        foreach (var card in Cards)
-        {
-            card.ResetCard();
-        }
+        List<(GameObject, int)> cardsNewPosition = new List<(GameObject, int)>();
+        for (int i = 0; i < Cards.Count; i++)
+            cardsNewPosition.Add((Cards[i].gameObject, Random.Range(0,Cards.Count))) ;
+
+        foreach ((GameObject, int) item in cardsNewPosition)
+            item.Item1.transform.SetSiblingIndex(item.Item2);
     }
 }
