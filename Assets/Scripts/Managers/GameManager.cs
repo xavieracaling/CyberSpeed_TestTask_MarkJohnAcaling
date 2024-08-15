@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class GameManager : MonoBehaviour
 {
     public int Level;
-    public const int MaxLevel = 5;
+    public const int MaxLevel = 4;
     public List<GameObject> ListOfLevelCardDecks = new List<GameObject>();
     public static GameManager Instance { get; private set; }
 
