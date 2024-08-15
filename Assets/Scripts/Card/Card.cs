@@ -10,10 +10,10 @@ public class Card : MonoBehaviour
     public Sprite FrontSprite { get; private set; }
     public Sprite BackSprite { get; private set; }
     public GameObject FrontSpriteGO { get; private set; }
-    
+
     private bool isFlipped;
     private bool isMatched;
-
+    public int CardIndex;
     private void Awake()
     {
         CardImage = GetComponent<Image>();
@@ -25,6 +25,7 @@ public class Card : MonoBehaviour
 
     public void Initialize(Sprite frontSprite, Sprite backSprite)
     {
+        CardIndex = GameManager.Instance.CurrentCarDeck.Cards.IndexOf(this);
         FrontSprite = frontSprite;
         BackSprite = backSprite;
         FrontSpriteGO = transform.GetChild(0).gameObject;
@@ -81,6 +82,4 @@ public class Card : MonoBehaviour
         CardImage.transform.DOPunchScale(Vector3.one * 0.2f, 0.3f, 10, 1);
     }
 
-    public bool IsMatched() => isMatched;
-    public bool IsFlipped() => isFlipped;
 }

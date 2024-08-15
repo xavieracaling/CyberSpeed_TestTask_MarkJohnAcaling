@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
@@ -24,7 +25,9 @@ public class GameManager : MonoBehaviour
     public GameObject NextLevelGO;
     public GameObject ContainerUI;
     public GameObject MenuUI;
+    public Button RestartBTN;
     public Transform GameContainer;
+    public CardSave SaveCard = new CardSave();
     private void Awake()
     {
         if (Instance == null)
@@ -99,10 +102,23 @@ public class GameManager : MonoBehaviour
     {
         if(matches + matches == CurrentCarDeck.Cards.Count)
         {
+            CurrentCarDeck.gameObject.SetActive(false);
             ContainerRestartNext.SetActive(true);
             NextLevelGO.SetActive(true);
+            RestartBTN?.onClick?.RemoveAllListeners();
+            int level = Level;
+            RestartBTN.onClick.AddListener( () => NextLevel(level));
             if(MaxLevel == Level )
+            {
                 NextLevelGO.SetActive(false);
+            }
+            else
+            {
+                Button buttonNext = NextLevelGO.GetComponent<Button>();
+                buttonNext?.onClick?.RemoveAllListeners();
+                Level++;
+                buttonNext.onClick.AddListener( () => NextLevel(Level));
+            }
             Debug.Log("Completed Game!");
         }
     }
@@ -114,14 +130,23 @@ public class GameManager : MonoBehaviour
     }
     public void NextLevel(int level)
     {
+        ContainerRestartNext.SetActive(false);
+        if(CurrentCarDeck != null)
+            Destroy(CurrentCarDeck.gameObject);
         MenuUI.gameObject.SetActive(false);
         Level = level;
-        InitializeGame();
         GameObject cardLevel = Instantiate(ListOfLevelCardDecks[level], GameContainer);
         CardDeck cardDeck = cardLevel.GetComponent<CardDeck>();
         ContainerUI.SetActive(true);
+        string savedCheck = PlayerPrefs.GetString("LevelSaved","null");
+        if(savedCheck != "null")
+        {
+            
+            return;
+        }
+        InitializeGame();
         cardDeck.ShuffleDeck();
     }
-    public void Restart() => NextLevel(Level);
+    
     
 }
