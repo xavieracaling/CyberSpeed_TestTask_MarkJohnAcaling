@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,7 +13,7 @@ public class GameManager : MonoBehaviour
 
     public CardDeck CardDeck { get; private set; }
 
-    private List<Card> flippedCards = new List<Card>();
+    public List<Card> FlippedCards = new List<Card>();
     public int matches;
     public int Matches { get => matches; private set { matches = value; UIManager.Instance.UpdateMatches(value);}  }
     public int turns;
@@ -27,18 +28,13 @@ public class GameManager : MonoBehaviour
     public GameObject MenuUI;
     public Button RestartBTN;
     public Transform GameContainer;
-    public CardSave SaveCard = new CardSave();
+    public CardSave SaveCard ;
     private void Awake()
     {
         if (Instance == null)
-        {
             Instance = this;
-            DontDestroyOnLoad(gameObject); 
-        }
         else
-        {
             Destroy(gameObject);
-        }
     }
 
     private void Start()
@@ -48,60 +44,73 @@ public class GameManager : MonoBehaviour
 
     private void InitializeGame()
     {
+        InitializeInfo();
+        LoadCheckGame();
+      
+    }
+    public void InitializeInfo()
+    {
+        FlippedCards.Clear();
         Matches = 0;
         Turns = 0;
-        
-      
     }
 
     public void OnCardSelected(Card selectedCard)
     {
-        flippedCards.Add(selectedCard);
-
-        // Check if we have a pair to evaluate
-        if (flippedCards.Count % 2 == 0)
-        {
+        FlippedCards.Add(selectedCard);
+        CardProcessSaving.AddFlipCard(selectedCard.CardIndex);
+        if (FlippedCards.Count % 2 == 0)
             StartCoroutine(checkMatch());
-        }
+        CardProcessSaving.SaveGameInfo();
+
     }
 
     private IEnumerator checkMatch()
     {
         // Get the last two flipped cards
         Turns++;
-        int lastIndex = flippedCards.Count - 1;
-        Card card1 = flippedCards[lastIndex];
-        Card card2 = flippedCards[lastIndex - 1];
-
+        int lastIndex = FlippedCards.Count - 1;
+        Card card1 = FlippedCards[lastIndex];
+        Card card2 = FlippedCards[lastIndex - 1];
+        
+        CardInfo cardInfo1 = CardProcessSaving.GetCardInfo(lastIndex);
+        CardInfo cardInfo2 = CardProcessSaving.GetCardInfo(lastIndex - 1);
         yield return new WaitForSeconds(0.5f);
 
         if (card1.FrontSprite == card2.FrontSprite)
         {
             card1.SetMatched();
             card2.SetMatched();
+            card1.MatchedSFX.Play();
+            CardProcessSaving.SaveCardIsMatch(card1.CardIndex,true);
+            CardProcessSaving.SaveCardIsMatch(card2.CardIndex,true);
             Matches++;
-      
+            CardProcessSaving.SaveGameInfo();
 
-            // if (matchesFound >= CardDeck.Cards.Count)
-            // {
-            
-            // }
+           
         }
         else
         {
             card1.FlipBack();
             card2.FlipBack();
+            CardProcessSaving.SaveCardIsMatch(card1.CardIndex,false);
+            CardProcessSaving.SaveCardIsMatch(card2.CardIndex,false);
         }
 
-        flippedCards.Remove(card1);
-        flippedCards.Remove(card2);
-
+        FlippedCards.Remove(card1);
+        FlippedCards.Remove(card2);
+        CardProcessSaving.RemoveFlipCard(cardInfo1);
+        CardProcessSaving.RemoveFlipCard(cardInfo2);
         CheckLevelComplete();
+
     }
     public void CheckLevelComplete()
     {
         if(matches + matches == CurrentCarDeck.Cards.Count)
         {
+            AudioManager.Instance.GameWin.Play();
+            PlayerPrefs.DeleteAll();
+            GameManager.Instance.SaveCard = new CardSave();
             CurrentCarDeck.gameObject.SetActive(false);
             ContainerRestartNext.SetActive(true);
             NextLevelGO.SetActive(true);
@@ -138,14 +147,22 @@ public class GameManager : MonoBehaviour
         GameObject cardLevel = Instantiate(ListOfLevelCardDecks[level], GameContainer);
         CardDeck cardDeck = cardLevel.GetComponent<CardDeck>();
         ContainerUI.SetActive(true);
-        string savedCheck = PlayerPrefs.GetString("LevelSaved","null");
-        if(savedCheck != "null")
+    }
+
+    public void LoadCheckGame()
+    {
+        if(CardProcessSaving.CheckSavedGame())
         {
-            
-            return;
+            string savedCheck = PlayerPrefs.GetString("LevelSaved","null");
+            Debug.Log(savedCheck);
+            SaveCard = JsonConvert.DeserializeObject<CardSave>(savedCheck);
+            Level = SaveCard.CurrentLevel;
+
+            NextLevel(Level);
+            Turns = SaveCard.Turns;
+            Matches = SaveCard.Matches;
+
         }
-        InitializeGame();
-        cardDeck.ShuffleDeck();
     }
     
     

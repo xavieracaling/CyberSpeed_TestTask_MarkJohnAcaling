@@ -6,77 +6,85 @@ using DG.Tweening;
 public class Card : MonoBehaviour
 {
     public Image CardImage { get; private set; }
-    public Button CardButton { get; private set; }
+    public Button CardButton ;
     public Sprite FrontSprite { get; private set; }
     public Sprite BackSprite { get; private set; }
     public GameObject FrontSpriteGO { get; private set; }
 
-    private bool isFlipped;
-    private bool isMatched;
+    public bool IsFlipped;
+    public bool IsMatched;
     public int CardIndex;
-    private void Awake()
-    {
-        CardImage = GetComponent<Image>();
-        CardButton = GetComponent<Button>();
-        CardButton.onClick.AddListener(OnCardClicked);
-        Initialize(transform.GetChild(0).GetComponent<Image>().sprite,
-                   GetComponent<Image>().sprite);
-    }
+    public AudioSource PageSFX;
+    public AudioSource MatchedSFX;
+    public AudioSource NotMatchedSFX;
 
     public void Initialize(Sprite frontSprite, Sprite backSprite)
     {
+        PageSFX = gameObject.AddComponent<AudioSource>();
+        PageSFX.volume = 0.4f;
+        PageSFX.clip = AudioManager.Instance.PageFlip;
+        
+        MatchedSFX = gameObject.AddComponent<AudioSource>();
+        MatchedSFX.volume = 0.4f;
+        MatchedSFX.clip = AudioManager.Instance.Matched;
+
+        NotMatchedSFX = gameObject.AddComponent<AudioSource>();
+        NotMatchedSFX.volume = 0.4f;
+        NotMatchedSFX.clip = AudioManager.Instance.NotMatched;
+
+        CardImage = GetComponent<Image>();
+        CardButton = GetComponent<Button>();
+        CardButton.onClick.AddListener(OnCardClicked);
+       
+
         CardIndex = GameManager.Instance.CurrentCarDeck.Cards.IndexOf(this);
         FrontSprite = frontSprite;
         BackSprite = backSprite;
         FrontSpriteGO = transform.GetChild(0).gameObject;
-        ResetCard();
-    }
-
-    public void ResetCard()
-    {
-        isFlipped = false;
-        isMatched = false;
-        CardImage.sprite = BackSprite;
-        CardButton.interactable = true;
     }
 
     private void OnCardClicked()
     {
-        if (isFlipped || isMatched) return;
+        if (IsFlipped || IsMatched) return;
 
         GameManager.Instance.OnCardSelected(this);
         FlipCard();
+        
     }
 
     public void FlipCard()
     {
-        isFlipped = true;
+        PageSFX.Play();
+        IsFlipped = true;
         CardButton.interactable = false;
-
+        CardProcessSaving.SaveCardIsFlipped(CardIndex,IsFlipped);
         CardImage.transform.DOScaleX(0, 0.2f).OnComplete(() =>
         {
             FrontSpriteGO.gameObject.SetActive(true);
-            //CardImage.sprite = FrontSprite;
             CardImage.transform.DOScaleX(1, 0.2f);
         });
+        CardProcessSaving.SavedJsonGame();
     }
+
 
     public void FlipBack()
     {
-        isFlipped = false;
+        NotMatchedSFX.Play();
+        IsFlipped = false;
         CardButton.interactable = true;
-
+        CardProcessSaving.SaveCardIsFlipped(CardIndex,IsFlipped);
         CardImage.transform.DOScaleX(0, 0.2f).OnComplete(() =>
         {
             FrontSpriteGO.gameObject.SetActive(false);
             CardImage.sprite = BackSprite;
             CardImage.transform.DOScaleX(1, 0.2f);
         });
+        CardProcessSaving.SavedJsonGame();
     }
 
     public void SetMatched()
     {
-        isMatched = true;
+        IsMatched = true;
         CardButton.interactable = false;
 
         CardImage.transform.DOPunchScale(Vector3.one * 0.2f, 0.3f, 10, 1);
