@@ -21,15 +21,15 @@ public class Card : MonoBehaviour
     public void Initialize(Sprite frontSprite, Sprite backSprite)
     {
         PageSFX = gameObject.AddComponent<AudioSource>();
-        PageSFX.volume = 0.4f;
+        PageSFX.volume = 0.6f;
         PageSFX.clip = AudioManager.Instance.PageFlip;
         
         MatchedSFX = gameObject.AddComponent<AudioSource>();
-        MatchedSFX.volume = 0.4f;
+        MatchedSFX.volume = 0.6f;
         MatchedSFX.clip = AudioManager.Instance.Matched;
 
         NotMatchedSFX = gameObject.AddComponent<AudioSource>();
-        NotMatchedSFX.volume = 0.4f;
+        NotMatchedSFX.volume = 0.6f;
         NotMatchedSFX.clip = AudioManager.Instance.NotMatched;
 
         CardImage = GetComponent<Image>();
